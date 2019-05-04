@@ -161,7 +161,7 @@ class SerialisableFields(object):
     @classmethod
     def _get_field_title(cls, name):
         field = cls._get_field(name)
-        if isinstance(field, models.ManyToOneRel):
+        if isinstance(field, (models.ManyToOneRel, models.ManyToManyRel,)):
             field_name = field.related_model._meta.verbose_name_plural
         else:
             field_name = field.verbose_name
@@ -174,7 +174,11 @@ class SerialisableFields(object):
     @classmethod
     def _get_field_default(cls, name):
         field = cls._get_field(name)
-        default = field.get_default()
+
+        if isinstance(field, (models.ManyToOneRel, models.ManyToManyRel,)):
+            default = []
+        else:
+            default = field.get_default()
 
         # for blank fields the result is a blank string, lets just remove that
         if default == '':
